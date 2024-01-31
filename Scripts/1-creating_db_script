@@ -1,0 +1,42 @@
+#!/usr/bin/bash
+#Implementation code for creating a data base
+
+declare -A NumericArray
+array=("SELECT" "INSERT" "DELETE" "UPDATE" "GRANT" "REVOKE" "ADD" "ALTER" "COLUMN" "TABLE" "ROW" "FROM" "AND" "OR" "AS" "DROP" "HAVING" "WHERE" "EXIT")
+trigger=0    
+read -p "Enter your database name: " db_name
+
+#Checking if the user input has no special characters-----
+if [[ $db_name =~ ^[0-9@#$%^\&*()-+!\/=*] ]];then
+	trigger=1
+fi
+if [[ $db_name =~ .*[@#\$\%\#\!\^\&*()-+|\\//-=*] ]];then
+	trigger=1
+fi
+#check if the user input is not a key word---------------------
+for i in ${array[@]}
+do
+	upper_db_name=`echo $db_name | tr '[a-z]' '[A-Z]'`
+	if [[ $upper_db_name == $i ]];then
+		trigger=1
+	fi
+done
+
+# if the user enterd a name with spaces switch it to _
+db_name=`echo $db_name | tr ' ' '_'`
+
+#Now we check if the this data base name is already there
+if [[ $trigger == 0 ]];then
+
+# if the user enterd a name with spaces switch it to _
+	db_name=`echo $db_name | tr ' ' '_'`
+	if [[ -d ./DataBases/$db_name ]];then
+		echo ":( :( :( -----------------Database exists----------------- :( :( :("
+	else
+		mkdir -p ./DataBases/$db_name
+		echo ":):):)------------Database created successfully------------:) :) :)"
+	fi
+else
+	echo -e "\t :(:(:(  ------------ This '$db_name' DataBase name not valid----------- :(:(:("
+
+fi
