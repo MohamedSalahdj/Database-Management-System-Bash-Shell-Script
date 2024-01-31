@@ -20,5 +20,5 @@ if [[ -d ./DataBases/$new_db_name ]];then
 		echo "Wrong input please choose yes(y) or no(n)"
 	fi
 else
-	echo ":):):)------------ Database do not exist ------------:) :) :)"
+	echo ":):):)------------ '$new_db_name' Database do not exist ------------:) :) :)"
 fi
