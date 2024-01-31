@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+
+read -p "Enter The Database Name To be deleted:- " db_name
+
+# if the user enterd a name with spaces switch it to _
+new_db_name=`echo $db_name | tr ' ' '_'`
+
+#Now we check if the this data base name is already there
+if [[ -d ./DataBases/$new_db_name ]];then
+	read -p "Are you sure to delete '$new_db_name' DB ? Enter [Y or N]-->  " answer
+	#--- converting the answer to lowercase
+	answer=${answer,,}
+	
+	if [[ $answer == "yes" || $answer == "y" ]]; then
+		echo -e ":):):)------------ '$new_db_name' Database Deleted Successfully :( :( :("
+		rm -r ./DataBases/$new_db_name
+	elif [[ $answer == "no"  || $answer == "n" ]]; then
+		echo "Skipped deleting :) :) :)"
+	else
+		echo "Wrong input please choose yes(y) or no(n)"
+	fi
+else
+	echo ":):):)------------ Database do not exist ------------:) :) :)"
+fi
