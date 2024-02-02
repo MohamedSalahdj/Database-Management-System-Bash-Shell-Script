@@ -433,6 +433,135 @@ done
 
 }
 
+function updateFromTable()
+{
+declare -A colNamesArr
+colNamesArr=()
+read -p "Enter table name: " tableName
+#checking if table name exits
+while ! [[ -f ./DataBases/"$1"/"$tableName" ]];
+do
+	read -p "Table doesn't exist, enter table name: " tableName
+	if [[ $tableName == "EXIT" || $tableName == "exit" ]];
+	then
+		exit
+	fi
+done
+columnNames=`sed  -n '1p' ./DataBases/"$1"/"$tableName"`
+columnTypes=`sed -n '2p' ./DataBases/"$1"/."$tableName".metadata`
+
+IFS="|"
+#pushing types into types name array
+	for type in $columnTypes
+	do 
+		colTypesArr+=("$type")
+		let arrLen+=1
+	done
+echo "$tableName columns --->"
+columnLen=0
+for name in $columnNames
+do
+	if [[ $columnLen == 0 ]];then
+		echo "------ $name ^^Primary Key^^ Can't be modified"
+	else
+		echo "------ $name"
+	fi
+	((columnLen+=1))
+	colNamesArr["$name"]=$columnLen  #append to my associative array key is colname, value is col index
+
+done 
+#select the deleting method
+read -p "Choose the column name you want to update:  " getCol
+
+#Now we validate the user input
+while true;
+do
+	for name in $columnNames
+	do
+		if [[ $name == $getCol  ]];then
+			trigger=0
+			break
+		else
+			trigger=1
+		fi
+	done
+	#Validate the trigger
+	if [[ $trigger == 0 ]];
+	then
+		break
+	else
+		read -p "Invalid column name, Enter the column name you want to update: " getCol
+	fi
+done
+getColIndex=${colNamesArr["$getCol"]}
+if [[ $getColIndex == 1 ]];
+then
+	echo "!!!!!!!! Your not authorized to change or update the Primary Key !!!!!!!!"
+	exit
+fi
+
+#Get the old value to change (my where condition)
+read -p "What is the old value you want to update: " oldValue
+getValue=`awk -v check=$oldValue -v row=$getColIndex 'BEGIN {
+											FS="|";}
+											{
+												if ($row == check) {
+													print("0")
+													exit 0
+												}}' ./DataBases/"$1"/"$tableName"`
+if  ! [[ $getValue == 0 ]];
+then
+	echo "\t :):):) ------------ Value not found in table records  ----------- :(:(:( "
+else
+	
+
+	#Getting the type of col for checking
+	let getTypeindex=$getColIndex-1
+	colType="${colTypesArr[$getTypeindex]}"
+
+	read -p "What is the new value:  " newValue
+
+	if [[ $colType == int ]];
+	then
+		case $newValue in
+		+([0-9]))
+			awk -v value="$newValue" -v row=$getColIndex -v  check=$oldValue 'BEGIN {
+												FS=OFS="|";}
+												{
+													if ($row == check) {
+														$row=value
+													}
+													print $0}' ./DataBases/"$1"/"$tableName" > ./DataBases/"$1"/"$tableName".update
+												mv "./DataBases/$1/$tableName.update" "./DataBases/$1/$tableName"
+			echo "\t :):):) ------------ Values updated successfully ------------:) :) :) :)"
+		;;
+		*) exit
+		;;
+		esac
+	fi
+	if [[ $colType == str ]];
+	then
+		checkAttributeName $newValue
+		isvaild=$?
+		if [[ $isvaild == 1 ]];
+		then
+			awk -v value="$newValue" -v row=$getColIndex -v  check=$oldValue 'BEGIN {
+												FS=OFS="|";}
+												{
+													if ($row == check) {
+														$row=value
+													}
+													print $0}' "./DataBases/$1/$tableName" > "./DataBases/$1/$tableName.update"
+
+												mv "./DataBases/$1/$tableName.update" "./DataBases/$1/$tableName"
+			echo "\t :):):) ------------ Values updated successfully ------------:) :) :) :)"
+		else
+			echo "\t :):):) ------------ Invalid input, please enter a valid datatype -----------:( :( :( :("
+		fi
+	fi
+fi
+
+}
 
 function tableStart()
 {
