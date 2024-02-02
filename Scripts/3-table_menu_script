@@ -342,7 +342,96 @@ function selectFromTable()
 }
 
 
+function deleteFromTable()
+{
 
+read -p "Enter table name: " tableName
+#checking if table name exits
+while ! [[ -f ./DataBases/"$1"/"$tableName" ]];
+do
+	read -p "Table doesn't exist, enter table name: " tableName
+	if [[ $tableName == "EXIT" || $tableName == "exit" ]];
+	then
+		exit
+	fi
+done
+
+#select the deleting method
+select command in "Delete by Primary Key" "Delete by column name" "Delete all records" "Exit"
+do
+	case $REPLY in
+	1) while true;
+		do
+			read -p "Enter primary key: " deletePk
+			pkRowNum=`awk -v check=$deletePk 'BEGIN {
+				FS="|";}
+				{
+					if ($1 == check) {
+						print NR
+						exit 0
+					}
+				}' ./DataBases/"$1"/"$tableName"`
+				if [[ $pkRowNum == "" ]];then
+					echo "Primary key not found :(((())))"
+				else
+					sed -i "${pkRowNum}d" ./DataBases/"$1"/"$tableName"
+					echo "Row containg PrimaryKey with value $deletePk deleted successfully"
+				fi
+		done
+	;;
+	2) while true;
+		do
+			read -p "Enter column name: " deleteColumn
+		
+			columnNames=`sed  -n '1p' ./DataBases/"$1"/"$tableName"`
+			IFS="|"
+			let i=0 #increment to get the number of column
+			for name in $columnNames
+			do
+				((i+=1))
+				if [[ $name == $deleteColumn ]];
+				then
+					echo $i
+						while true;
+						do
+							read -p "Enter the value of $deleteColumn : " delValue
+							rowNum=`awk -v check=$delValue -v col=$i 'BEGIN {
+							FS="|";}
+							{
+								if ($col == check) {
+									print NR
+									exit 0
+								}
+							}' ./DataBases/"$1"/"$tableName"`
+							if [[ $rowNum == "" ]];
+							then
+								echo "Value not found :((()))"
+							else
+								sed -i "${rowNum}d" ./DataBases/"$1"/"$tableName"
+								echo "Row containg $deleteColumn value $delValue deleted successfully"
+								break
+							fi
+							
+						done
+
+					fi
+			done
+			echo "Invalid column name"
+		done
+		;;
+		3) read -p "Are you sure you want to erase all records in table $tableName [y | n]: " userAnswer
+			case $userAnswer in
+				"yes"|"y"|"Y"|"Yes"|"YES") 
+					sed -i '2, $d' ./DataBases/"$1"/"$tableName"
+					echo "All records in $tableName TABLE has been deleted successfully"
+				;;
+				"No"|"n"|"N"|"NO"|"no") exit
+				;;
+			esac
+	esac
+done
+
+}
 
 
 function tableStart()
