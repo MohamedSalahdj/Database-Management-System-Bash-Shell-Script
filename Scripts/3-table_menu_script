@@ -1,5 +1,5 @@
 #!/bin/bash
-
+shopt -s extglob
 
 function createTable()
 {	
@@ -90,6 +90,66 @@ function checkTableName()
 }
 
 
+
+function checkAttributeName()
+{
+	
+	arrayOfKeywords=("SELECT" "INSERT" "DELETE" "UPDATE" "GRANT" "REVOKE" "ADD" "ALTER" "COLUMN" "TABLE" "ROW" "FROM" "AND" "OR" "AS" "DROP" "HAVING" "WHERE" "EXIT" "CREATE")
+	
+	
+	for n in ${arrayOfKeywords[@]}
+	do
+	    upperColName=`echo $1 | tr '[a-z]' '[A-Z]'`
+	    if [[ $upperColName == $n ]];
+	    then
+	    	
+		 echo -e "\t--!!!!!!!!!! Invalid name !!!!!!!!!!--\n\t------------ Reserved word ------------"
+		  y=0
+		  return $y
+	    fi
+	done
+	
+	if ! [[ $1 =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]];then
+		echo -e "\t--!!!!!!!!!! Invalid  name !!!!!!!!!!--"
+		y=0
+		
+	else
+		y=1
+	fi
+	
+	return $y
+	
+}
+function dropTable(){
+	
+	read tableName
+	
+	if [ -e ./DataBases/"$1"/"$tableName" ]
+	then
+		while true;
+		do
+			read -p "Are you sure to delete '$tableName' DataBase ? Enter [Y or N]-->  " answer
+			answer=${answer,,}
+			if [[ $answer == "yes" || $answer == "y" ]]; then
+					rm ./DataBases/"$1"/"$tableName"
+					rm ./DataBases/"$1"/."$tableName".metadata
+					echo -e "\n\t :( :( :(------------ '$tableName' TABLE Deleted Successfully----------- :( :( :("
+					break
+			elif [[ $answer == "no"  || $answer == "n" ]]; then
+					echo -e "\n\t :) :) :) ------------ '$tableName' TABLE Deleting Skipped----------- :) :) :)"
+					break
+			else
+					echo -e "\n\t :( :( :(------------ Wrong input please choose yes(y) or no(n)----------- :( :( :(\n"
+				fi
+		done
+		
+	else
+		echo -e "\t :):):) ------------ This '$tableName' Table Not Exists ----------- :(:(:( \n"
+		
+	fi
+
+}
+
 function tableStart()
 {
 
@@ -100,7 +160,7 @@ function tableStart()
 		if [[ -d ./DataBases/$dbName ]];then
 		    echo -e "\n\t------ Connected Succesfully to '$dbName' DataBases ------\n"
 		    
-		    echo -e "\t\t\t1-List Tables\n\t2-Create Table\t\t 3-Drop Table\n\t4-Insert Into Table\t 5-Select From Table\t\n\t6-Delete From Table\t 7-Update Table\n" 
+		    echo -e "\t\t\t1-List Tables\n\t2-Create Table\t\t 3-Drop Table\n\t4-Insert Into Table\t 5-Select From Table\t\n\t6-Delete From Table\t 7-Update Table\t\n\t\t\t 8-Exit" 
 		    read -p "Enter table option :- " optionNumber
 			   
 		   case $optionNumber in 
@@ -113,8 +173,8 @@ function tableStart()
 		   	echo -e "\t------- Create table -------"
 		   	checkTableName $dbName;;
 		   3)
-		   	echo -e "\t------- Drop table -------\nEnter Table name:- ";;
-		   	#dropTable $dbName;;
+		   	echo -e "\t------- Drop table -------\nEnter Table name:- "
+		   	dropTable $dbName;;
 		   	
 		   4)
 		   	echo -e "\t------- Insert Into Table -------\nEnter Table name:- ";;
@@ -128,6 +188,9 @@ function tableStart()
 		   7)	
 		   	echo -e "\t------- Update Table -------\nEnter Table name:- ";;
 			#updateFromTable $dbName;;
+			8) 
+			echo -e "\n\t\t----   Exit  -----"
+				exit;;
 		   *)
 		   	echo -e "\n!!!!!! ------ Enter vaild option !!!!!! ------ "
 		   	#tableStart	
