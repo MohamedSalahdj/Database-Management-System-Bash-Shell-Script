@@ -599,17 +599,17 @@ function tableStart()
 				echo -e "\t------- Select From Table -------\nEnter Table name:- "
 				selectFromTable $dbName;;
 			6)
-				echo -e "\t------- Delete From Table -------\nEnter Table name:- ";;
-				#deleteFromTable $dbName;;
+				echo -e "\t------- Delete From Table -------\nEnter Table name:- "
+				deleteFromTable $dbName;;
 			7)	
-				echo -e "\t------- Update Table -------\nEnter Table name:- ";;
-				#updateFromTable $dbName;;
+				echo -e "\t------- Update Table -------\nEnter Table name:- "
+				updateFromTable $dbName;;
 				8) 
 				echo -e "\n\t\t----   Exit  -----"
 					exit;;
 			*)
 				echo -e "\n!!!!!! ------ Enter vaild option !!!!!! ------ "
-				#tableStart	
+				tableStart	
 		   	
 			esac
 			else
