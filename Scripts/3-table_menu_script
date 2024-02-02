@@ -260,10 +260,93 @@ function insertInto()
 	
 }
 
+function convertColNameToArray() {
+
+	columnNames=`sed  -n '1p' ./DataBases/"$1"/."$2".metadata`
+	IFS="|"
+	arrayOfColNames=()
+	for cloName in $columnNames
+	do
+		arrayOfColNames+=("$cloName")
+	done 
+	#echo "from convertColNameTOArray function "${arrayOfColNames[@]}
+	echo -e "\t --------- $columnNames --------\n"
+}
+
+
+
+function selectFromTable() 
+{
+	read tableName	
+	if [ -e ./DataBases/"$1"/"$tableName" ]
+	then 
+		echo -e "\t\t\t\t   1- SELECT ALL \n\t\t2- SELECT by column Name \t3- select by column value"
+		read -p "Enter Select option:- " selectOption
+		case $selectOption in 
+		1)
+			cat ./DataBases/"$1"/"$tableName";;
+		2)
+		
+			convertColNameToArray "$1" "$tableName"
+			
+			for (( i=0; i<${#arrayOfColNames[@]}; i++))
+			do
+				echo -e "\t- To select '${arrayOfColNames[i]}' column Enter '$((i+1))'"
+			done
+			
+			read -p "Enter select Option: " selectOption
+			
+			if (($selectOption > 0 && $selectOption <= ${#arrayOfColNames[@]}))
+			then
+                		dataColumn=$(cut -d '|' -f $selectOption "./DataBases/$1/$tableName")
+                		echo "--------"
+                		echo -e "$dataColumn"
+                	else 
+                		echo -e "\t--------- invaild column --------- \n\t--------- Try again --------- \n\t--------- Enter Table Name --------- " 
+                		selectFromTable $1
+                	fi;;
+                3)
+                	convertColNameToArray "$1" "$tableName"
+                	
+			for (( i=0; i<${#arrayOfColNames[@]}; i++))
+			do
+				echo -e "\t- To Select Using '${arrayOfColNames[i]}' Value Enter '$((i+1))'"
+			done
+                	
+                	read -p "Enter select Option: " selectedColumnNumber
+                	
+                	if (($selectOption > 0 && $selectOption <= ${#arrayOfColNames[@]}))
+			then
+				read -p "Enter the value to filter by '${arrayOfColNames[$((selectedColumnNumber-1))]}' " filterValue
+								
+				filteredRow=$(awk -F'|' -v colNum="$selectedColumnNumber" -v filter="$filterValue" '$colNum ~ filter' "./DataBases/$1/$tableName")
+
+                		echo -e "\n$columnNames|\n------------\n$filteredRow|" 
+                	    	
+                	else
+                		echo -e "\t--------- invaild column --------- \n\t--------- Try again --------- \n\t--------- Enter Table Name --------- " 
+                		selectFromTable $1
+                	fi;;
+            
+           		
+                
+		*)
+			echo -e "\t\t---------  Invaild option --------- \n\t\t---------    Try again\t  --------- \n\t\t--------- Enter Table Name ---------"
+			selectFromTable $1 ;;
+		esac
+	else
+		echo -e "This '$tableName' Table Not Exists\n\t--------- Try again --------- \n\t--------- Enter Table Name --------- "
+	selectFromTable	$1
+	fi
+	
+}
+
+
+
+
 
 function tableStart()
 {
-
 
 		read -p "Enter the database name to connect or ("exit"): " dbName
 		if [[ $dbName == "exit" || $dbName == "EXIT" ]];
@@ -295,8 +378,8 @@ function tableStart()
 				echo -e "\t------- Insert Into Table -------\nEnter Table name:- "
 				insertInto $dbName;;
 			5)
-				echo -e "\t------- Select From Table -------\nEnter Table name:- ";;
-				#selectFromTable $dbName;;
+				echo -e "\t------- Select From Table -------\nEnter Table name:- "
+				selectFromTable $dbName;;
 			6)
 				echo -e "\t------- Delete From Table -------\nEnter Table name:- ";;
 				#deleteFromTable $dbName;;
