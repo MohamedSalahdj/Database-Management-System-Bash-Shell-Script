@@ -1,6 +1,59 @@
 #!/bin/bash
 
 
+function createTable()
+{	
+	arrayOfAttributesNames=()
+	arrayOfAttributesTypes=()
+	
+	read -p "Enter Number Of Attributes :- " attributesNumber
+	
+	case $attributesNumber in
+	+([1-9])) 
+		
+		for (( i=0; i<attributesNumber; i++ ))
+		do
+			read -p "Enter Name of '$((i+1))' attribute :- " attributeName
+			#checkAttributeName $attributeName
+			isvaild=$?
+				if (($isvaild==1))
+			then
+				arrayOfAttributesNames[$i]=$attributeName
+				echo -e "What is data type of '$attributeName' \n1-int\t\t 2-string\n"
+				read -p "Enter a vaild option " dataTypeOption 
+		
+				case $dataTypeOption in 
+				    1) 
+					echo "created '$attributeName' with Data Type 'int' "
+					arrayOfAttributesTypes[$i]='int';;
+				    2)
+					echo "created '$attributeName' with Data Type 'str' " 
+					arrayOfAttributesTypes[$i]='str';;
+				    *)
+					echo -e "Enter a valid Option\nEnter attribute again"
+				 	createTable $1 $2 $3;;
+				esac
+			else
+				createTable $1 $2 $3
+			fi
+			
+			
+		done ;;
+ 	*)
+ 		echo -e "invaild number\nTry again"
+ 		createTable $1 $2 $3 ;;
+	esac		
+			 
+		
+	attributesNames=$(IFS=\|; echo "${arrayOfAttributesNames[*]}")
+    	attributesTypes=$(IFS=\|; echo "${arrayOfAttributesTypes[*]}")
+
+	echo "$attributesNames" > ./DataBases/"$1"/"$2"
+	echo "$attributesTypes" >> ./DataBases/"$1"/"$2"
+	echo "$attributesNames" > ./DataBases/"$1"/"$3"
+}
+
+
 function checkTableName() 
 {
 	# first vaildation of keywods
@@ -28,7 +81,7 @@ function checkTableName()
 		if [[ $tableName =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]];then
 			touch ./DataBases/"$1"/."$tableName".metadata
 			touch ./DataBases/"$1"/"$tableName"	
-			#createTable  $1 ."$tableName".metadata $tableName
+			createTable  $1 ."$tableName".metadata $tableName
 		else
 			echo "invaild name"
 			checkTableName $1
