@@ -1,5 +1,42 @@
 #!/bin/bash
 
+
+function checkTableName() 
+{
+	# first vaildation of keywods
+	arrayOfKeywords=("SELECT" "INSERT" "DELETE" "UPDATE" "GRANT" "REVOKE" "ADD" "ALTER" "COLUMN" "TABLE" "ROW" "FROM" "AND" "OR" "AS" "DROP" "HAVING" "WHERE" "EXIT")
+	
+	read -p "Enter Table Name ;- " tableName
+	
+	if [[ -f ./DataBases/"$1"/"$tableName" ]];
+	then
+		echo -e "\t :):):) ------------ '$tableName' TABLE Already Exists ----------- :(:(:( "
+		checkTableName $1
+	else
+		#check if the user input is a keyword------------
+		for i in ${arrayOfKeywords[@]}
+		do
+			upperTableName=`echo $tableName | tr '[a-z]' '[A-Z]'`
+			if [[ $upperTableName == $i ]];then
+			        echo "Sorry Reserved word"
+			        #handle menu here  			            
+			fi		
+		done
+		
+		#echo -e "\t!!!!!!!! $tableName !!!!!!!!!!!"
+
+		if [[ $tableName =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]];then
+			touch ./DataBases/"$1"/."$tableName".metadata
+			touch ./DataBases/"$1"/"$tableName"	
+			#createTable  $1 ."$tableName".metadata $tableName
+		else
+			echo "invaild name"
+			checkTableName $1
+		fi
+	fi
+}
+
+
 function tableStart()
 {
 
@@ -20,8 +57,8 @@ function tableStart()
 				tableStart	
 				 ;; 
 		   2)
-		   	echo -e "\t------- Create table -------";;
-		   	#checkTableName $dbName;;
+		   	echo -e "\t------- Create table -------"
+		   	checkTableName $dbName;;
 		   3)
 		   	echo -e "\t------- Drop table -------\nEnter Table name:- ";;
 		   	#dropTable $dbName;;
