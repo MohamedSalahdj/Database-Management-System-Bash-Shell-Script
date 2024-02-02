@@ -125,6 +125,7 @@ function checkAttributeName()
 	return $y
 	
 }
+
 function dropTable(){
 	
 	read tableName
@@ -154,6 +155,106 @@ function dropTable(){
 	fi
 
 }
+
+
+
+function insertInto()
+{
+
+	colNamesArr=()
+	colTypesArr=()
+	read  tableName
+	#checking if table name exits
+	while ! [[ -f ./DataBases/"$1"/"$tableName" ]];
+	do
+		read -p "Table doesn't exist, enter table name: " tableName
+		if [[ $tableName == "EXIT" || $tableName == "exit" ]];
+		then
+			exit
+		fi
+	done
+	columnNames=`sed  -n '1p' ./DataBases/"$1"/."$tableName".metadata`
+	columnTypes=`sed -n '2p' ./DataBases/"$1"/."$tableName".metadata`
+	IFS="|"
+	#pushing into colnames array
+	for name in $columnNames
+	do
+		colNamesArr+=("$name")
+	done 
+	echo ${colNamesArr[@]}
+	#pushing types into types name array
+	for type in $columnTypes
+	do 
+		colTypesArr+=("$type")
+		let arrLen+=1
+	done
+	#inserting into table ====>>>
+	#declare my varaiable
+	for ((i=0; i < arrLen; i++))
+	do
+		read -p  "Enter ${colNamesArr[$i]}: " input
+		if [[ ${colTypesArr[$i]} == "int" ]];then
+			while ! [[ $input =~ ^[0-9]+ ]]
+			do
+				read -p "invalid datatype, Enter ${colNamesArr[$i]}: " input
+			done
+			#check the unique value only if the column is PK
+			if [[ $i == 0 ]];
+			then
+				exitStatus=1
+				while [[ $exitStatus != 0 ]]
+				do
+					awk -v check=$input 'BEGIN {
+					FS="|";}
+					{
+						if ($1 == check) {
+							exit 2
+						}		
+					}' ./DataBases/"$1"/"$tableName"
+					exitStatus=$?
+					if [[ $exitStatus == 0 ]];then
+						break
+					fi
+					read -p "${colNamesArr[$i]} must be unique, Enter ${colNamesArr[$i]}: " input
+				done
+			fi
+		fi
+		if [[ ${colTypesArr[$i]} == "str" ]];then
+			while ! [[ $input =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]]
+			do
+				read -p "invalid datatype, Enter ${colNamesArr[$i]}: " input
+			done
+		fi
+		if [[ $i == 0 ]];
+			then
+				exitStatus=1
+				while [[ $exitStatus != 0 ]]
+				do
+					awk -v check=$input 'BEGIN {
+					FS="|";}
+					{
+						if ($1 == check) {
+							exit 2
+						}		
+					}' ./DataBases/"$1"/"$tableName"
+					exitStatus=$?
+					if [[ $exitStatus == 0 ]];then
+						break
+					fi
+					read -p "${colNamesArr[$i]} must be unique, Enter ${colNamesArr[$i]}: " input
+				done
+		fi
+		IFS=" "
+		insertStr+="$input|"
+	done
+	insertStr="${insertStr%|}"
+	echo $insertStr >> ./DataBases/"$1"/"$tableName"
+
+	echo "Data inserted Successfully into $tableName"
+
+	
+}
+
 
 function tableStart()
 {
