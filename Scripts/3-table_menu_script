@@ -1,6 +1,36 @@
 #!/bin/bash
 shopt -s extglob
 
+function checkAttributeName()
+{
+	
+	arrayOfKeywords=("SELECT" "INSERT" "DELETE" "UPDATE" "GRANT" "REVOKE" "ADD" "ALTER" "COLUMN" "TABLE" "ROW" "FROM" "AND" "OR" "AS" "DROP" "HAVING" "WHERE" "EXIT" "CREATE")
+	
+	
+	for n in ${arrayOfKeywords[@]}
+	do
+	    upperColName=`echo $1 | tr '[a-z]' '[A-Z]'`
+	    if [[ $upperColName == $n ]];
+	    then
+	    	
+		 echo -e "\t--!!!!!!!!!! Invalid name !!!!!!!!!!--\n\t------------ Reserved word ------------"
+		  y=0
+		  return $y
+	    fi
+	done
+	
+	if ! [[ $1 =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]];then
+		echo -e "\t--!!!!!!!!!! Invalid  name !!!!!!!!!!--"
+		y=0
+		
+	else
+		y=1
+	fi
+	
+	return $y
+	
+}
+
 function createTable()
 {	
 	arrayOfAttributesNames=()
@@ -14,7 +44,7 @@ function createTable()
 		for (( i=0; i<attributesNumber; i++ ))
 		do
 			read -p "Enter Name of '$((i+1))' attribute :- " attributeName
-			#checkAttributeName $attributeName
+			checkAttributeName $attributeName
 			isvaild=$?
 				if (($isvaild==1))
 			then
@@ -95,36 +125,6 @@ function checkTableName()
 }
 
 
-
-function checkAttributeName()
-{
-	
-	arrayOfKeywords=("SELECT" "INSERT" "DELETE" "UPDATE" "GRANT" "REVOKE" "ADD" "ALTER" "COLUMN" "TABLE" "ROW" "FROM" "AND" "OR" "AS" "DROP" "HAVING" "WHERE" "EXIT" "CREATE")
-	
-	
-	for n in ${arrayOfKeywords[@]}
-	do
-	    upperColName=`echo $1 | tr '[a-z]' '[A-Z]'`
-	    if [[ $upperColName == $n ]];
-	    then
-	    	
-		 echo -e "\t--!!!!!!!!!! Invalid name !!!!!!!!!!--\n\t------------ Reserved word ------------"
-		  y=0
-		  return $y
-	    fi
-	done
-	
-	if ! [[ $1 =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]];then
-		echo -e "\t--!!!!!!!!!! Invalid  name !!!!!!!!!!--"
-		y=0
-		
-	else
-		y=1
-	fi
-	
-	return $y
-	
-}
 
 function dropTable(){
 	
