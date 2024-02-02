@@ -22,7 +22,7 @@ while true;
 				source ./Scripts/2-deleting_db_script
 				;;
 			4) echo -e "Connect to database"
-				 ./Scripts/table_menu.sh
+				 ./Scripts/3-table_menu_script
 				;;
 			5) echo  "Bye"
 				exit
