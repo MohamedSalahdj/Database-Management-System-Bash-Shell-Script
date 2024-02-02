@@ -57,36 +57,41 @@ function createTable()
 function checkTableName() 
 {
 	# first vaildation of keywods
-	arrayOfKeywords=("SELECT" "INSERT" "DELETE" "UPDATE" "GRANT" "REVOKE" "ADD" "ALTER" "COLUMN" "TABLE" "ROW" "FROM" "AND" "OR" "AS" "DROP" "HAVING" "WHERE" "EXIT")
+	arrayOfKeywords=("SELECT" "INSERT" "DELETE" "UPDATE" "GRANT" "REVOKE" "ADD" "ALTER" "COLUMN" "TABLE" "ROW" "FROM" "AND" "OR" "AS" "DROP" "HAVING" "WHERE" "EXIT" "CREATE")
 	
 	read -p "Enter Table Name ;- " tableName
 	
 	if [[ -f ./DataBases/"$1"/"$tableName" ]];
 	then
 		echo -e "\t :):):) ------------ '$tableName' TABLE Already Exists ----------- :(:(:( "
-		checkTableName $1
+		keyWordtrigger=1
 	else
 		#check if the user input is a keyword------------
 		for i in ${arrayOfKeywords[@]}
 		do
 			upperTableName=`echo $tableName | tr '[a-z]' '[A-Z]'`
 			if [[ $upperTableName == $i ]];then
-			        echo "Sorry Reserved word"
-			        #handle menu here  			            
+			        keyWordtrigger=1
+				echo -e "\t :(:(:(  ------------ This '$tableName' Table name is invalid----------- :(:(:("
+			        break  			            
+			else
+				if [[ $tableName =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]];
+				then 
+					touch ./DataBases/"$1"/."$tableName".metadata
+					touch ./DataBases/"$1"/"$tableName"	
+					createTable  $1 ."$tableName".metadata $tableName
+				else
+				echo -e "\t :(:(:(  ------------ This '$tableName' Table name is invalid----------- :(:(:("
+				fi
+				
 			fi		
 		done
 		
-		#echo -e "\t!!!!!!!! $tableName !!!!!!!!!!!"
-
-		if [[ $tableName =~ ^[a-zA-Z]+[a-zA-Z0-9_]*$ ]];then
-			touch ./DataBases/"$1"/."$tableName".metadata
-			touch ./DataBases/"$1"/"$tableName"	
-			createTable  $1 ."$tableName".metadata $tableName
-		else
-			echo "invaild name"
-			checkTableName $1
-		fi
+		
 	fi
+
+	
+	
 }
 
 
@@ -154,52 +159,57 @@ function tableStart()
 {
 
 
-		read -p "Enter the database name to connect: " dbName
+		read -p "Enter the database name to connect or ("exit"): " dbName
+		if [[ $dbName == "exit" || $dbName == "EXIT" ]];
+		then
+			exit
+		else
 
-		#Now we check if the this data base name is already there
-		if [[ -d ./DataBases/$dbName ]];then
-		    echo -e "\n\t------ Connected Succesfully to '$dbName' DataBases ------\n"
-		    
-		    echo -e "\t\t\t1-List Tables\n\t2-Create Table\t\t 3-Drop Table\n\t4-Insert Into Table\t 5-Select From Table\t\n\t6-Delete From Table\t 7-Update Table\t\n\t\t\t 8-Exit" 
-		    read -p "Enter table option :- " optionNumber
-			   
-		   case $optionNumber in 
-		    1)
-		   	echo -e "\t------- Listing Tables ------- "
-		   		 ls ./DataBases/"$dbName"
-				tableStart	
-				 ;; 
-		   2)
-		   	echo -e "\t------- Create table -------"
-		   	checkTableName $dbName;;
-		   3)
-		   	echo -e "\t------- Drop table -------\nEnter Table name:- "
-		   	dropTable $dbName;;
+			#Now we check if the this data base name is already there
+			if [[ -d ./DataBases/$dbName ]];then
+				echo -e "\n\t------ Connected Succesfully to '$dbName' DataBases ------\n"
+				
+				echo -e "\t\t\t1-List Tables\n\t2-Create Table\t\t 3-Drop Table\n\t4-Insert Into Table\t 5-Select From Table\t\n\t6-Delete From Table\t 7-Update Table\t\n\t\t\t 8-Exit" 
+				read -p "Enter table option :- " optionNumber
+				
+			case $optionNumber in 
+				1)
+				echo -e "\t------- Listing Tables ------- "
+					ls ./DataBases/"$dbName"
+					tableStart	
+					;; 
+			2)
+				echo -e "\t------- Create table -------"
+				checkTableName $dbName;;
+			3)
+				echo -e "\t------- Drop table -------\nEnter Table name:- "
+				dropTable $dbName;;
+				
+			4)
+				echo -e "\t------- Insert Into Table -------\nEnter Table name:- ";;
+				#insertInto $dbName;;
+			5)
+				echo -e "\t------- Select From Table -------\nEnter Table name:- ";;
+				#selectFromTable $dbName;;
+			6)
+				echo -e "\t------- Delete From Table -------\nEnter Table name:- ";;
+				#deleteFromTable $dbName;;
+			7)	
+				echo -e "\t------- Update Table -------\nEnter Table name:- ";;
+				#updateFromTable $dbName;;
+				8) 
+				echo -e "\n\t\t----   Exit  -----"
+					exit;;
+			*)
+				echo -e "\n!!!!!! ------ Enter vaild option !!!!!! ------ "
+				#tableStart	
 		   	
-		   4)
-		   	echo -e "\t------- Insert Into Table -------\nEnter Table name:- ";;
-		   	#insertInto $dbName;;
-		   5)
-		   	echo -e "\t------- Select From Table -------\nEnter Table name:- ";;
-		   	#selectFromTable $dbName;;
-		   6)
-		   	echo -e "\t------- Delete From Table -------\nEnter Table name:- ";;
-			#deleteFromTable $dbName;;
-		   7)	
-		   	echo -e "\t------- Update Table -------\nEnter Table name:- ";;
-			#updateFromTable $dbName;;
-			8) 
-			echo -e "\n\t\t----   Exit  -----"
-				exit;;
-		   *)
-		   	echo -e "\n!!!!!! ------ Enter vaild option !!!!!! ------ "
-		   	#tableStart	
-		   	
-	   	esac
-	   else
-	   	echo ":):):)------------Database do not exist------------:) :) :)"
-	   	tableStart
-	   fi
+			esac
+			else
+				echo ":):):)------------Database do not exist------------:) :) :)"
+				tableStart
+			fi
+		fi
 }
 
 tableStart
