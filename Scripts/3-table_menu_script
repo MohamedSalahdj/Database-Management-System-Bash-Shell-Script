@@ -197,7 +197,6 @@ function insertInto()
 		colTypesArr+=("$type")
 		let arrLen+=1
 	done
-	echo $arrLen
 	#inserting into table ====>>>
 	#declare my varaiable
 	for ((i=0; i < arrLen; i++))
@@ -458,7 +457,8 @@ read -p "Enter table name: " tableName
 #checking if table name exits
 while ! [[ -f ./DataBases/"$1"/"$tableName" ]];
 do
-	read -p "Table doesn't exist, enter table name: " tableName
+	echo -e " \t \t!!!!!!!! '$tableName' Table doesn't exist  !!!!!!!!\n"
+	read -p "Enter table name: " tableName
 	if [[ $tableName == "EXIT" || $tableName == "exit" ]];
 	then
 		exit
@@ -507,13 +507,14 @@ do
 	then
 		break
 	else
-		read -p "Invalid column name, Enter the column name you want to update: " getCol
+		echo -e " \t \t!!!!!!!! Invalid column name  !!!!!!!!\n"
+		read -p "Enter the column name you want to update: " getCol
 	fi
 done
 getColIndex=${colNamesArr["$getCol"]}
 if [[ $getColIndex == 1 ]];
 then
-	echo "!!!!!!!! Your not authorized to change or update the Primary Key !!!!!!!!"
+	echo -e "\t \t!!!!!!!! Your not authorized to change or update the Primary Key !!!!!!!!"
 	exit
 fi
 
@@ -528,7 +529,7 @@ getValue=`awk -v check=$oldValue -v row=$getColIndex 'BEGIN {
 												}}' ./DataBases/"$1"/"$tableName"`
 if  ! [[ $getValue == 0 ]];
 then
-	echo "\t :):):) ------------ Value not found in table records  ----------- :(:(:( "
+	echo -e "\t :):):) ------------ Value not found in table records  ----------- :(:(:( "
 else
 	
 
@@ -550,7 +551,7 @@ else
 													}
 													print $0}' ./DataBases/"$1"/"$tableName" > ./DataBases/"$1"/"$tableName".update
 												mv "./DataBases/$1/$tableName.update" "./DataBases/$1/$tableName"
-			echo "\t :):):) ------------ Values updated successfully ------------:) :) :) :)"
+			echo -e "\t :):):) ------------ Values updated successfully ------------:) :) :) :)"
 		;;
 		*) exit
 		;;
@@ -571,9 +572,9 @@ else
 													print $0}' "./DataBases/$1/$tableName" > "./DataBases/$1/$tableName.update"
 
 												mv "./DataBases/$1/$tableName.update" "./DataBases/$1/$tableName"
-			echo "\t :):):) ------------ Values updated successfully ------------:) :) :) :)"
+			echo -e "\t :):):) ------------ Values updated successfully ------------:) :) :) :)"
 		else
-			echo "\t :):):) ------------ Invalid input, please enter a valid datatype -----------:( :( :( :("
+			echo -e "\t :):):) ------------ Invalid input, please enter a valid datatype -----------:( :( :( :("
 		fi
 	fi
 fi
