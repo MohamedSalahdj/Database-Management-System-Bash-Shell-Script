@@ -320,13 +320,13 @@ function selectFromTable()
                 	
                 	read -p "Enter select Option: " selectedColumnNumber
                 	
-                	if (($selectOption > 0 && $selectOption <= ${#arrayOfColNames[@]}))
+                	if (($selectedColumnNumber > 0 && $selectedColumnNumber <= ${#arrayOfColNames[@]}))
 			then
 				read -p "Enter the value to filter by '${arrayOfColNames[$((selectedColumnNumber-1))]}' " filterValue
 								
 				filteredRow=$(awk -F'|' -v colNum="$selectedColumnNumber" -v filter="$filterValue" '$colNum ~ filter' "./DataBases/$1/$tableName")
 
-                		echo -e "\n$columnNames|\n------------\n$filteredRow|" 
+                		echo -e "\n$columnNames|\n------------\n$filteredRow" 
                 	    	
                 	else
                 		echo -e "\t--------- invaild column --------- \n\t--------- Try again --------- \n\t--------- Enter Table Name --------- " 
