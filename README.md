@@ -9,6 +9,36 @@
 #### Main Menu:
 
 - Create Database
+
 - List Databases
+
 - Connect To Databases
--  Drop Database
+
+- Drop Database
+
+  -----
+
+`Upon user Connect to Specific Database, there will be new Screen with this Menu:`
+
+#### Database Menu:
+
+- Create Table 
+
+- List Tables
+
+- Drop Table
+
+- Insert into Table
+
+- Select From Table
+
+- Delete From Table
+
+- Update Table
+
+  ------
+
+  
+
+###### !The Database will store as Directory on Current Script File
+
