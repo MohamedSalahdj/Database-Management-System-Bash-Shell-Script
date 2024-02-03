@@ -377,10 +377,11 @@ do
 					}
 				}' ./DataBases/"$1"/"$tableName"`
 				if [[ $pkRowNum == "" ]];then
-					echo "Primary key not found :(((())))"
+					echo -e "\t :):):) ------------Primary key not found --------:):):)"
 				else
 					sed -i "${pkRowNum}d" ./DataBases/"$1"/"$tableName"
 					echo "Row containg PrimaryKey with value $deletePk deleted successfully"
+					exit
 				fi
 		done
 	;;
@@ -396,10 +397,9 @@ do
 				((i+=1))
 				if [[ $name == $deleteColumn ]];
 				then
-					echo $i
 						while true;
 						do
-							read -p "Enter the value of $deleteColumn : " delValue
+							read -p "Enter the value of '$deleteColumn' : " delValue
 							rowNum=`awk -v check=$delValue -v col=$i 'BEGIN {
 							FS="|";}
 							{
@@ -410,18 +410,18 @@ do
 							}' ./DataBases/"$1"/"$tableName"`
 							if [[ $rowNum == "" ]];
 							then
-								echo "Value not found :((()))"
+								echo -e "\t :):):) ------------ Value not found--------- :):):)"
 							else
 								sed -i "${rowNum}d" ./DataBases/"$1"/"$tableName"
-								echo "Row containg $deleteColumn value $delValue deleted successfully"
-								break
+								echo -e "\t :(:(:( --- Row containg $deleteColumn value $delValue deleted successfully --- :(:(:( "
+								exit
 							fi
 							
 						done
 
 					fi
 			done
-			echo "Invalid column name"
+			echo -e "\t :):):) ------------ '$deleteColumn' Invalid column name----------- :(:(:( "
 		done
 		;;
 		3) read -p "Are you sure you want to erase all records in table $tableName [y | n]: " userAnswer
@@ -430,9 +430,21 @@ do
 					sed -i '2, $d' ./DataBases/"$1"/"$tableName"
 					echo "All records in $tableName TABLE has been deleted successfully"
 				;;
-				"No"|"n"|"N"|"NO"|"no") exit
+				"No"|"n"|"N"|"NO"|"no")
+				echo -e "\n\t :) :) :) ------------ '$tableName' TABLE content deleting Skipped----------- :) :) :)"
+					exit
 				;;
+				*)
+				echo -e "\n \t :) :) :)----Wrong input exiting deleting the table content --- :) :) \n"
+				echo -e "\t \t Enter valid deleting option---------------\n"
+				;;
+		
 			esac
+			;;
+		4) echo -e "\t :):):) ------------ Byee ----------- :):):) "
+			exit
+			;;
+
 	esac
 done
 
